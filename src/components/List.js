@@ -1,55 +1,62 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import "./List.css";
+import axios from 'axios';
 
 export default function List() {
-    
+  // State to store the list of users
+  const [users, setUsers] = useState([]);
 
-const [users,setUsers]=useState([])
+  // Function to fetch users from the backend API
+  const fetchUsers = () => {
+    axios.get("http://localhost:5000/students")
+      .then(res => setUsers(res.data.students))
+      .catch(err => console.error("Error fetching users:", err));
+  };
 
+  // Fetch users on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-
-useEffect(()=>{
-
-   axios.get("https://dummyjson.com/users")
-
-   .then(res=>setUsers(res.data.users))
-    
- },[])
-
-
+  // Handle delete user
+  const handleDelete = (id) => {
+    axios.delete(`http://localhost:5000/studentdelete/${id}`) // Removed extra slash after 'http:'
+      .then(() => {
+        alert("Deleted");
+        fetchUsers(); // Refresh list after deletion
+      })
+      .catch(err => console.error("Error deleting user:", err));
+  };
 
   return (
-      <>
-       <div className='col-md-10 content'>
-
-      <h1>List</h1>
-      <table  border="1" className='tablemy'>
-      <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>email</th>
-        <th>username</th>
-      </tr>
-
-
-      
-
-      {
-        users.map((e,i)=> (
-            <>
+    <>
+      <div className='col-md-10 content'>
+        <h1>List New Deploy</h1>
+        <table border="1">
+          <thead>
             <tr>
-              <td>{e.firstName}</td>
-              <td>{e.age}</td>
-              <td>{e.email}</td>
-              <td>{e.username}</td>
+              <th>ID</th> {/* Corrected the column name to match displayed data */}
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Action</th>
             </tr>
-            </>
-        ))
-      }
-      </table>
-
+          </thead>
+          <tbody>
+            {users.map((user, index) => (
+              <tr key={user.id}> {/* Use a unique key such as user.id */}
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.phone}</td>
+                <td>
+                  <button onClick={() => handleDelete(user.id)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    
     </>
-  )
+  );
 }
